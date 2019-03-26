@@ -1,8 +1,16 @@
+/*
+Name:                   Jin Jung
+Student ID:             2329401
+Email:                  jijung@chapman.edu
+Course no. & Section:   CS350-02
+Assignment:             3
+*/
+
 #ifndef GENSTACK_H
 #define GENSTACK_H
 
 /*
-  Generic Array Based Stack
+  Array based Generic Stack implementation 
 */
 
 #include <iostream>
@@ -10,6 +18,7 @@
 #include <exception>
 #include <algorithm> //copy(InputIterator first, InputIterator last, OutputIterator result)
 #include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -36,18 +45,13 @@ public:
   StackEmpty(const string& err) : runtime_error(err) {};
 };
 
-class StackFull : public runtime_error {
-public:
-  StackFull(const string& err) : runtime_error(err) {};
-};
-
 template <typename E>
 int GenStack<E>::size() {
   return top+1;
 }
 
 template <typename E>
-bool GenStack<E>::full() {
+bool GenStack<E>::full() {  //not used any longer since capacity of stack is automatically increased
   return (top == capacity-1);
 }
 
@@ -63,12 +67,11 @@ GenStack<E>::GenStack(int capacity) : stack(new E[capacity]), top(-1), capacity(
 template <typename E>
 void GenStack<E>::push(const E& e) {
   //if not full
-  if (top == capacity-1) {
+  if (top == capacity-1) {  //check if capacity needs to be increased
     capacity *= 2;
     E* newStack = new E[capacity];
     copy(stack, stack+(capacity/2), newStack);
     stack = newStack;
-    cout << "increased stack capacity!\n";
   }
   stack[++top] = e;
 }

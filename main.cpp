@@ -3,51 +3,77 @@ Name:                   Jin Jung
 Student ID:             2329401
 Email:                  jijung@chapman.edu
 Course no. & Section:   CS350-02
-Assignment:             1
+Assignment:             3
 */
 
 /*
-  Driver file
+  Driver file to test the Syntax Checker program
 */
 
 #include "GenStack.h"
+#include "SyntaxChecker.h"
 
-class SyntaxException {
-private:
-  string errorMsg;
-public:
-  SyntaxException(const string& err) { errorMsg = err; }
-  string getMessage() const { return errorMsg; }
-};
+using namespace std;
 
-void runSyntaxCheck(string filelocation);
+string toUpperCase(string someString); //FUNction to turn string toUpperCase
 
 int main(int argc, char** argv) {
-  /*
-    automatically call runSyntaxCheck(string filePath) to check for '(' ')' '{' '}' '[' ']'
-    within runSyntaxCheck(string filePath) {
-    verify existence of filePath, fnf message and exit
-    open file stream, readin each line, increment line#, iterate through each index of string and push opening delimiters into stack
-    after each closing delimiter, pop() and  If stack is empty and no matching delimiter,
-    reach end of file: missing }. else syntax error in line#.
-
-    //only push delimiters when bool isComment is false (check for comment delimiters) ' " '
-
-  }
-
-    To do:
-    update readme
-    add comments
-
-  */
-
   if(argc > 1 && argc < 3) {  //check for valid number of terminial inputs
     string filelocation = argv[1];
     ifstream istream(filelocation);
     if(istream.is_open()) { //check if file exists
       istream.close();
-      runSyntaxCheck(filelocation);
+      SyntaxChecker test(filelocation);
+      test.runSyntaxCheck();
+      bool repeat = false;
+      string yesno = "";
+      cout << "Syntax check finished with no errors found. Run again? (y/n) : ";
+      cin >> yesno;
+      if (cin.fail()) {
+        cout << "Invalid input!\n";
+        cin.clear();
+        cin.ignore();
+        exit(1);
+      }
+      if (toUpperCase(yesno) == "YES" || toUpperCase(yesno) == "Y") {
+        repeat = true;
+      }
+      while (repeat) {
+        string newFilePath = "";
+        repeat = false;
+        cout << "Please enter new file path: \n";
+        cin >> newFilePath;
+        if (cin.fail())
+        {
+          cout << "Invalid input!\n";
+          cin.clear();
+          cin.ignore();
+          exit(1);
+        }
+        ifstream istream2(newFilePath);
+        if(istream2.is_open()) { //check if file exists
+          istream2.close();
+          SyntaxChecker test(newFilePath);
+          test.runSyntaxCheck();
+        cout << "Syntax check finished with no errors found. Run again? (y/n) : ";
+        cin >> yesno;
+        if (cin.fail())
+        {
+          cout << "Invalid input!\n";
+          cin.clear();
+          cin.ignore();
+          exit(1);
+        }
+        if (toUpperCase(yesno) == "YES" || toUpperCase(yesno) == "Y") {
+          repeat = true;
+        }
+      }
+      else {
+        cout << "Invalid filePath!\nExiting..\n";
+        return 0;
+      }
     }
+  }
     else {
       cout << "Invalid filePath!\nExiting..\n";
       return 0;
@@ -59,71 +85,14 @@ int main(int argc, char** argv) {
   }
 }
 
-void runSyntaxCheck(string filelocation) {
-  ifstream istream(filelocation);
-  //if int apostroph % 2 != 0 || int quotation % 2 != 0, disregard
-  GenStack<char> delimitersGoHere(100);
-  string temp = "";
-  int linenumber = 1;
-  try {
-    while (!istream.eof()) { //while end of file has not been reached
-      getline(istream,temp);
-      if (temp.back() == '\r') {  //remove return carriage character from string temp
-      temp.pop_back();
-      }
-      if(temp.length() <= 0) {  //skip empty line
-        linenumber++;
-        continue;
-      }
-
-      for (int i = 0; i < temp.length(); ++i) { //otherwise read each line and search for delimiters
-        if(temp[i] == '{' || temp[i] == '[' || temp[i] == '(') {
-          delimitersGoHere.push(temp[i]);
-        }
-        else if(temp[i] == '}') {
-          if(delimitersGoHere.empty()) {
-            string message = "Line " + to_string(linenumber) + ": missing matching { ";
-            throw SyntaxException(message);
-          }
-          char temp2 = delimitersGoHere.pop();
-          if(temp2 != '{') {
-            string message = "Line " + to_string(linenumber) + ": expected { and found " + temp2;
-            throw SyntaxException(message);
-          }
-        }
-        else if(temp[i] == ']') {
-          if(delimitersGoHere.empty()) {
-            string message = "Line " + to_string(linenumber) + ": missing matching [ ";
-            throw SyntaxException(message);
-          }
-          char temp2 = delimitersGoHere.pop();
-          if(temp2 != '[') {
-            string message = "Line " + to_string(linenumber) + ": expected [ and found " + temp2;
-            throw SyntaxException(message);
-          }
-        }
-        else if(temp[i] == ')') {
-          if(delimitersGoHere.empty()) {
-            string message = "Line " + to_string(linenumber) + ": missing matching ( ";
-            throw SyntaxException(message);
-          }
-          char temp2 = delimitersGoHere.pop();
-          if(temp2 != '(') {
-            string message = "Line " + to_string(linenumber) + ": expected ( and found " + temp2;
-            throw SyntaxException(message);
-          }
-        }
-      }
-      linenumber++;
+string toUpperCase(string someString)
+{
+  for(int i = 0; i < someString.length(); ++i)
+  {
+    if (static_cast<int>(someString[i]) > 96 && static_cast<int>(someString[i]) < 123)
+    {
+      someString[i] = static_cast<char>(static_cast<int>(someString[i])-32);
     }
-    istream.close();
-    if (delimitersGoHere.size() > 0) {
-      throw SyntaxException("Reached end of file: missing }");
-    }
-    cout << "Delimiter Syntax is correct. Analyze another file? (Y/N): ";
   }
-  catch(SyntaxException e) {
-    cout << e.getMessage();
-    exit(1);
-  }
+  return someString;
 }
