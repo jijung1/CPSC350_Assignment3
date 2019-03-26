@@ -10,7 +10,7 @@ Assignment:             3
 #define GENSTACK_H
 
 /*
-  Array based Generic Stack implementation 
+  Array based Generic Stack implementation
 */
 
 #include <iostream>
@@ -92,6 +92,9 @@ return (stack[top--]);
 template <typename E>
 const E& GenStack<E>::peek() {
   //if not empty
+  if (top == -1) {
+    throw StackEmpty ("peek() from empty stack!\n");
+  }
   return (stack[top]);
 }
 
